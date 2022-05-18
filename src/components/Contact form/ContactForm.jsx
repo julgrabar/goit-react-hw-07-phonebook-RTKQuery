@@ -1,16 +1,45 @@
-import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import { StyledForm } from './ContactForm.styled';
+import {
+  useAddContactMutation,
+  useGetContactsQuery,
+} from 'redux/contactsSlice';
+import toast from 'react-hot-toast';
 
-export const ContactForm = ({ onSubmit }) => {
+export const ContactForm = () => {
+  const [addContact] = useAddContactMutation();
+  const { data: contacts } = useGetContactsQuery();
+
   const initialValues = {
     name: '',
     number: '',
   };
 
   const handleSubmit = (values, { resetForm }) => {
-    onSubmit(values);
+    addNewContact(values);
     resetForm();
+  };
+
+  const addNewContact = async ({ name, number }) => {
+    if (
+      contacts.map(item => item.name.toLowerCase()).includes(name.toLowerCase())
+    ) {
+      toast.error(`${name} is already in contacts`);
+      return;
+    }
+
+    const contact = {
+      name,
+      number,
+    };
+
+    try {
+      await addContact(contact);
+      toast.success('Контакт добавлен');
+    } catch (error) {
+      toast.error('Ошибка при добавлении контакта');
+      console.log(error);
+    }
   };
 
   return (
@@ -41,8 +70,4 @@ export const ContactForm = ({ onSubmit }) => {
       </StyledForm>
     </Formik>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };

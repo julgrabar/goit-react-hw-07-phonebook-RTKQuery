@@ -1,22 +1,26 @@
+import { Loader } from 'components/Loader/Loader.stayled';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { deleteContact } from 'redux/contactsSlice';
+import { useDeleteContactMutation } from 'redux/contactsSlice';
 
 export const ContactsItem = ({ id, name, number }) => {
-  const dispatch = useDispatch();
+  const [deleteContact, { isLoading }] = useDeleteContactMutation();
 
   return (
     <li>
       <span>
         {name}: {number}
       </span>
-      <button
-        type="button"
-        className="delete-btn"
-        onClick={() => dispatch(deleteContact(id))}
-      >
-        <span className="material-icons">delete</span>
-      </button>
+      {isLoading ? (
+        <Loader margin=" 0 0 0 auto" />
+      ) : (
+        <button
+          type="button"
+          className="delete-btn"
+          onClick={() => deleteContact(id)}
+        >
+          <span className="material-icons">delete</span>
+        </button>
+      )}
     </li>
   );
 };
